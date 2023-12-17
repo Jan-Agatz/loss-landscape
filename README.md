@@ -6,7 +6,7 @@ Since the code provided by the authors did not work "out of the box" for us, we 
 
 If you want to run this on Google Colab:
 * Open the file `MML - Paper 04 - Implementations.ipynb`.
-* Copy my [](), which contains the models and calculations provided by the authors to your Google Drive, and remember the file path
+* Copy my [Google Drive folder](https://drive.google.com/drive/folders/19-zhmQXrtExX5Ddhj3s_BePBX7ELy9XA?usp=sharing), which contains the models and calculations provided by the authors to your Google Drive, and remember the file path
 * Change the name `NAME` (only necessary if you work collaboratively on the notebook), paths `MOUNT_PATH` and `CODE_PATH` to the corresponding values for your situation
 * Run the notebook, allowing it to access your Google Drive (since it needs to read and write files).
 * Enjoy.
