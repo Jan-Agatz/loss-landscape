@@ -1,13 +1,16 @@
 # Prelude
+Due to our computer architecture & infrastructure we opted to work on the `no_mpi`-branch of the repository. All the explanations pretain to that branch. 
 
-This repository is meant to be a starting point for those trying to recreate or understand the results, plots and calculations presented in the MML-Seminar by us, the Hackers, on December 19th.
+This repository is meant to be a starting point for those trying to recreate or understand the results, plots and calculations found in the presentation by the [hackers](https://colinraffel.com/blog/role-playing-seminar.html) in the [MML seminar](https://scoop.iwr.uni-heidelberg.de/teaching/2023ws/seminar-mathematical-machine-learning/) on December 19th 2023.
+
+Some values have to user specified. Thes are marked by comments of the form "**# USER-INPUT**".
 
 Since the code provided by the authors did not work "out of the box" for us, we wanted to provide an environment which should take more than a few minutes to setup.
 
 If you want to run this on Google Colab:
 * Open the file `MML - Paper 04 - Implementations.ipynb`.
 * Copy my [Google Drive folder](https://drive.google.com/drive/folders/19-zhmQXrtExX5Ddhj3s_BePBX7ELy9XA?usp=sharing), which contains the models and calculations provided by the authors to your Google Drive, and remember the file path
-* Change the name `NAME` (only necessary if you work collaboratively on the notebook), paths `MOUNT_PATH` and `CODE_PATH` to the corresponding values for your situation
+* Change the variables `NAME` (only necessary if you work collaboratively on the notebook), paths `MOUNT_PATH` and `CODE_PATH` to the corresponding values for your situation
 * Run the notebook, allowing it to access your Google Drive (since it needs to read and write files).
 * Enjoy.
 
