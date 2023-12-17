@@ -111,6 +111,8 @@ def min_max_hessian_eigs(net, dataloader, criterion, rank=0, use_cuda=False, ver
     params = [p for p in net.parameters() if len(p.size()) > 1]
     N = sum(p.numel() for p in params)
 
+    print(f"The number of parameters is: {N}")
+
     def hess_vec_prod(vec):
         hess_vec_prod.count += 1  # simulates a static variable
         vec = npvec_to_tensorlist(vec, params)

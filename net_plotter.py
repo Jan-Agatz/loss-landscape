@@ -261,7 +261,8 @@ def setup_direction(args, dir_file, net):
             h5_util.write_list(f, 'ydirection', ydirection)
 
     f.close()
-    print ("direction file created: %s" % dir_file)
+
+    print("direction file created: %s" % dir_file)
 
 
 def name_direction_file(args):

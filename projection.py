@@ -200,6 +200,8 @@ def setup_PCA_directions(args, model_files, w, s):
             f.close()
             return dir_name
 
+        f.close()
+
     # load models and prepare the optimization path matrix
     matrix = []
     for model_file in model_files:

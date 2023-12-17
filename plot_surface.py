@@ -48,27 +48,36 @@ def name_surface_file(args, dir_file):
 
 def setup_surface_file(args, surf_file, dir_file):
     # skip if the direction file already exists
+    file_already_exists = False
+    
     if os.path.exists(surf_file):
         f = h5py.File(surf_file, 'r')
+
         if (args.y and 'ycoordinates' in f.keys()) or 'xcoordinates' in f.keys():
-            f.close()
+            file_already_exists = True
             print ("%s is already set up" % surf_file)
-            return
+        
+        f.close()
+
+    print(file_already_exists)
+
+    if file_already_exists:
+        return
 
     f = h5py.File(surf_file, 'a')
-    f['dir_file'] = dir_file
+    # Currently we have to comment out the next line
+    # f['dir_file'] = dir_file
 
     # Create the coordinates(resolutions) at which the function is evaluated
-    xcoordinates = np.linspace(args.xmin, args.xmax, num=args.xnum)
+    xcoordinates = np.linspace(args.xmin, args.xmax, num=int(args.xnum))
     f['xcoordinates'] = xcoordinates
 
     if args.y:
-        ycoordinates = np.linspace(args.ymin, args.ymax, num=args.ynum)
+        ycoordinates = np.linspace(args.ymin, args.ymax, num=int(args.ynum))
         f['ycoordinates'] = ycoordinates
     f.close()
 
     return surf_file
-
 
 def crunch(surf_file, net, w, s, d, dataloader, loss_key, acc_key, args):
     """
@@ -174,10 +183,13 @@ if __name__ == '__main__':
     parser.add_argument('--threads', default=2, type=int, help='number of threads')
     parser.add_argument('--ngpu', type=int, default=1, help='number of GPUs to use for each rank, useful for data parallel evaluation')
     parser.add_argument('--batch_size', default=128, type=int, help='minibatch size')
+    parser.add_argument('--random_seed', action='store_true', default = False, help = "use a random seed")
 
     # data parameters
     parser.add_argument('--dataset', default='cifar10', help='cifar10 | imagenet')
     parser.add_argument('--datapath', default='cifar10/data', metavar='DIR', help='path to the dataset')
+    parser.add_argument('--timestamp', action="store_true", default=True, help='include timestamps in file names')
+    parser.add_argument('--fileformat', default="png", help='file format the saved plots are encoded with')
     parser.add_argument('--raw_data', action='store_true', default=False, help='no data preprocessing')
     parser.add_argument('--data_split', default=1, type=int, help='the number of splits for the dataloader')
     parser.add_argument('--split_idx', default=0, type=int, help='the index of data splits for the dataloader')
@@ -217,7 +229,16 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    torch.manual_seed(123)
+    if not args.random_seed:
+        manual_seed_value = 123
+        print(f"Using manual seed: {manual_seed_value}")
+        torch.manual_seed(manual_seed_value)
+    else:
+        print("Setting the seed randomly.")
+        torch.seed()
+
+    print(f"The current seed is {torch.random.initial_seed()}.")
+
     #--------------------------------------------------------------------------
     # Environment setup
     #--------------------------------------------------------------------------
@@ -304,16 +325,18 @@ if __name__ == '__main__':
     #--------------------------------------------------------------------------
     # Start the computation
     #--------------------------------------------------------------------------
-    crunch(surf_file, net, w, s, d, trainloader, 'train_loss', 'train_acc', args)
-    # crunch(surf_file, net, w, s, d, testloader, 'test_loss', 'test_acc', comm, rank, args)
 
+    crunch(surf_file, net, w, s, d, trainloader, 'train_loss', 'train_acc', args)
+    # crunch(surf_file, net, w, s, d, testloader, 'test_loss', 'test_acc', args)
+    #crunch(surf_file, net, w, s, d, testloader, 'test_loss', 'test_acc', comm, rank, args)
     #--------------------------------------------------------------------------
     # Plot figures
     #--------------------------------------------------------------------------
+
     if args.plot and rank == 0:
         if args.y and args.proj_file:
-            plot_2D.plot_contour_trajectory(surf_file, dir_file, args.proj_file, 'train_loss', args.show)
+            plot_2D.plot_contour_trajectory(surf_file, dir_file, args.proj_file, 'train_loss', args.show, args.timestamp, args.fileformat)
         elif args.y:
-            plot_2D.plot_2d_contour(surf_file, 'train_loss', args.vmin, args.vmax, args.vlevel, args.show)
+            plot_2D.plot_2d_contour(surf_file, 'train_loss', args.vmin, args.vmax, args.vlevel, args.show, args.timestamp, args.fileformat)
         else:
-            plot_1D.plot_1d_loss_err(surf_file, args.xmin, args.xmax, args.loss_max, args.log, args.show)
+            plot_1D.plot_1d_loss_err(surf_file, args.xmin, args.xmax, args.loss_max, args.log, args.show, args.timestamp, args.fileformat)
