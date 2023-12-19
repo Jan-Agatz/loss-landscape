@@ -127,7 +127,7 @@ if __name__ == '__main__':
     # data parameters
     parser.add_argument('--dataset', default='cifar10', help='cifar10 | imagenet')
     parser.add_argument('--datapath', default='cifar10/data', metavar='DIR', help='path to the dataset')
-    parser.add_argument('--timestamp', action="store_true", default=True, help='include timestamps in file names')
+    parser.add_argument('--timestamp', action="store_true", default=False, help='include timestamps in file names')
     parser.add_argument('--fileformat', default="png", help='file format the saved plots are encoded with')
     parser.add_argument('--raw_data', action='store_true', default=False, help='no data preprocessing')
     parser.add_argument('--data_split', default=1, type=int, help='the number of splits for the dataloader')

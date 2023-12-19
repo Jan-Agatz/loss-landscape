@@ -48,20 +48,18 @@ def name_surface_file(args, dir_file):
 
 def setup_surface_file(args, surf_file, dir_file):
     # skip if the direction file already exists
-    file_already_exists = False
+    file_already_exists_and_filled = False
     
     if os.path.exists(surf_file):
         f = h5py.File(surf_file, 'r')
 
         if (args.y and 'ycoordinates' in f.keys()) or 'xcoordinates' in f.keys():
-            file_already_exists = True
+            file_already_exists_and_filled = True
             print ("%s is already set up" % surf_file)
         
         f.close()
 
-    print(file_already_exists)
-
-    if file_already_exists:
+    if file_already_exists_and_filled:
         return
 
     f = h5py.File(surf_file, 'a')
@@ -150,8 +148,8 @@ def crunch(surf_file, net, w, s, d, dataloader, loss_key, acc_key, args):
                 acc_key, acc, loss_compute_time, syc_time))
         
         # Periodically write to file, and always write after last update
-        if count%90 == 6*rank or count == len(inds)-1:
-            print('Writing to file')
+        if count%10 == 6*rank or count == len(inds)-1:
+            print(f'Writing to file {surf_file}')
             f = h5py.File(surf_file, 'r+')
             f[loss_key][losses!=-1] = losses[losses!=-1]
             f[acc_key][accuracies!=-1] = accuracies[accuracies!=-1]
@@ -188,7 +186,7 @@ if __name__ == '__main__':
     # data parameters
     parser.add_argument('--dataset', default='cifar10', help='cifar10 | imagenet')
     parser.add_argument('--datapath', default='cifar10/data', metavar='DIR', help='path to the dataset')
-    parser.add_argument('--timestamp', action="store_true", default=True, help='include timestamps in file names')
+    parser.add_argument('--timestamp', action="store_true", default=False, help='include timestamps in file names')
     parser.add_argument('--fileformat', default="png", help='file format the saved plots are encoded with')
     parser.add_argument('--raw_data', action='store_true', default=False, help='no data preprocessing')
     parser.add_argument('--data_split', default=1, type=int, help='the number of splits for the dataloader')
@@ -327,7 +325,7 @@ if __name__ == '__main__':
     #--------------------------------------------------------------------------
 
     crunch(surf_file, net, w, s, d, trainloader, 'train_loss', 'train_acc', args)
-    # crunch(surf_file, net, w, s, d, testloader, 'test_loss', 'test_acc', args)
+    crunch(surf_file, net, w, s, d, testloader, 'test_loss', 'test_acc', args)
     #crunch(surf_file, net, w, s, d, testloader, 'test_loss', 'test_acc', comm, rank, args)
     #--------------------------------------------------------------------------
     # Plot figures

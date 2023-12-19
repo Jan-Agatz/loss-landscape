@@ -59,9 +59,12 @@ def plot_1d_loss_err(surf_file, xmin=-1.0, xmax=1.0, loss_max=5, log=False, show
     ax2.set_ylabel('Accuracy', color='r', fontsize='xx-large')
     ax2.tick_params('y', colors='r', labelsize='x-large')
     ax2.set_ylim(0, 100)
-    pp.savefig(surf_file + '_1d_loss_acc' + ('_log' if log else '') + "_" + current_timpestamp + "_JHA." + fileformat,
-                dpi=300, bbox_inches='tight', format=fileformat)
 
+    image_file_name = surf_file + '_1d_loss_acc' + ('_log' if log else '') + "_" + current_timpestamp + "_JHA." + fileformat
+
+    pp.savefig(image_file_name, dpi=300, bbox_inches='tight', format=fileformat)
+
+    print(f"Saved to file {image_file_name}")
 
     # train_loss curve
     pp.figure()
@@ -72,8 +75,12 @@ def plot_1d_loss_err(surf_file, xmin=-1.0, xmax=1.0, loss_max=5, log=False, show
     pp.ylabel('Training Loss', fontsize='xx-large')
     pp.xlim(xmin, xmax)
     pp.ylim(0, loss_max)
-    pp.savefig(surf_file + '_1d_train_loss' + ('_log' if log else '') +  "_" + current_timpestamp + "_JHA." + fileformat,
-                dpi=300, bbox_inches='tight', format=fileformat)
+
+    image_file_name = surf_file + '_1d_train_loss' + ('_log' if log else '') +  "_" + current_timpestamp + "_JHA." + fileformat
+
+    pp.savefig(image_file_name, dpi=300, bbox_inches='tight', format=fileformat)
+
+    print(f"Saved to file {image_file_name}")
 
     # train_err curve
     pp.figure()
@@ -81,7 +88,13 @@ def plot_1d_loss_err(surf_file, xmin=-1.0, xmax=1.0, loss_max=5, log=False, show
     pp.xlim(xmin, xmax)
     pp.ylim(0, 100)
     pp.ylabel('Training Error', fontsize='xx-large')
-    pp.savefig(surf_file + '_1d_train_err' + "_" + current_timpestamp + "_JHA." + fileformat, dpi=300, bbox_inches='tight', format=fileformat)
+
+    image_file_name = surf_file + '_1d_train_err' + "_" + current_timpestamp + "_JHA." + fileformat
+
+    pp.savefig(image_file_name, dpi=300, bbox_inches='tight', format=fileformat)
+
+    print(f"Saved to file {image_file_name}")
+
     if show:
         pp.show()
 
@@ -128,7 +141,12 @@ def plot_1d_loss_err_repeat(prefix, idx_min=1, idx_max=10, xmin=-1.0, xmax=1.0,
     ax2.set_ylabel('Accuracy', color='r', fontsize='xx-large')
     ax2.tick_params('y', colors='r', labelsize='x-large')
     ax2.set_ylim(0, 100)
-    pp.savefig(prefix + '_1d_loss_err_repeat' + "_" + current_timpestamp + "_JHA." + fileformat, dpi=300, bbox_inches='tight', format = fileformat)
+
+    image_file_name = prefix + '_1d_loss_err_repeat' + "_" + current_timpestamp + "_JHA." + fileformat
+
+    pp.savefig(image_file_name, dpi=300, bbox_inches='tight', format = fileformat)
+
+    print(f"Saved to file {image_file_name}")
 
     if show:
         pp.show()
@@ -155,13 +173,23 @@ def plot_1d_eig_ratio(surf_file, xmin=-1.0, xmax=1.0, val_1='min_eig', val_2='ma
     pp.plot(x, abs_ratio)
     pp.xlim(xmin, xmax)
     pp.ylim(0, ymax)
-    pp.savefig(surf_file + '_1d_eig_abs_ratio ' + "_" + current_timpestamp + "_JHA." + fileformat, dpi=300, bbox_inches='tight', format = fileformat)
+
+    image_file_name = surf_file + '_1d_eig_abs_ratio ' + "_" + current_timpestamp + "_JHA." + fileformat
+
+    pp.savefig(image_file_name, dpi=300, bbox_inches='tight', format = fileformat)
+
+    print(f"Saved to file: {image_file_name}")
 
     ratio = np.divide(Z1, Z2)
     pp.plot(x, ratio)
     pp.xlim(xmin, xmax)
     pp.ylim(0, ymax)
-    pp.savefig(surf_file + '_1d_eig_ratio' + "_" + current_timpestamp + "_JHA." + fileformat, dpi=300, bbox_inches='tight', format = fileformat)
+
+    image_file_name = surf_file + '_1d_eig_ratio' + "_" + current_timpestamp + "_JHA." + fileformat
+
+    pp.savefig(image_file_name, dpi=300, bbox_inches='tight', format = fileformat)
+
+    print(f"Saved to file {image_file_name}")
 
     f.close()
 
@@ -181,7 +209,7 @@ if __name__ == '__main__':
     parser.add_argument('--prefix', default='', help='The common prefix for surface files')
     parser.add_argument('--idx_min', default=1, type=int, help='min index for the surface file')
     parser.add_argument('--idx_max', default=10, type=int, help='max index for the surface file')
-    parser.add_argument('--timestamp', action="store-true", default=True, help='include timestamps in file names')
+    parser.add_argument('--timestamp', action="store-true", default=False, help='include timestamps in file names')
     parser.add_argument('--fileformat', default="png", help='file format the saved plots are encoded with')
 
     args = parser.parse_args()
