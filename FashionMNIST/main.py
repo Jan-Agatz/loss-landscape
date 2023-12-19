@@ -1,5 +1,5 @@
-from __future__ import print_function
 import os
+import time
 import random
 import numpy as np
 import argparse
@@ -12,6 +12,7 @@ import torch.nn.functional as F
 import torch.backends.cudnn as cudnn
 from torch.autograd import Variable
 import torch.nn.parallel
+from tqdm import tqdm
 
 import model_loader
 import dataloader
@@ -38,7 +39,7 @@ def train(trainloader, net, criterion, optimizer, use_cuda=True):
     total = 0
 
     if isinstance(criterion, nn.CrossEntropyLoss):
-        for batch_idx, (inputs, targets) in enumerate(trainloader):
+        for batch_idx, (inputs, targets) in tqdm(enumerate(trainloader)):
             batch_size = inputs.size(0)
             total += batch_size
             if use_cuda:
@@ -54,7 +55,7 @@ def train(trainloader, net, criterion, optimizer, use_cuda=True):
             correct += predicted.eq(targets.data).cpu().sum().item()
 
     elif isinstance(criterion, nn.MSELoss):
-        for batch_idx, (inputs, targets) in enumerate(trainloader):
+        for batch_idx, (inputs, targets) in tqdm(enumerate(trainloader)):
             batch_size = inputs.size(0)
             total += batch_size
 
@@ -82,7 +83,7 @@ def test(testloader, net, criterion, use_cuda=True):
     total = 0
 
     if isinstance(criterion, nn.CrossEntropyLoss):
-        for batch_idx, (inputs, targets) in enumerate(testloader):
+        for batch_idx, (inputs, targets) in tqdm(enumerate(testloader)):
             batch_size = inputs.size(0)
             total += batch_size
 
@@ -96,7 +97,7 @@ def test(testloader, net, criterion, use_cuda=True):
             correct += predicted.eq(targets.data).cpu().sum().item()
 
     elif isinstance(criterion, nn.MSELoss):
-        for batch_idx, (inputs, targets) in enumerate(testloader):
+        for batch_idx, (inputs, targets) in tqdm(enumerate(testloader)):
             batch_size = inputs.size(0)
             total += batch_size
 
@@ -139,7 +140,7 @@ def name_save_folder(args):
 
 if __name__ == '__main__':
     # Training options
-    parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
+    parser = argparse.ArgumentParser(description='PyTorch FashionMNIST Training')
     parser.add_argument('--batch_size', default=128, type=int)
     parser.add_argument('--lr', default=0.1, type=float, help='learning rate')
     parser.add_argument('--lr_decay', default=0.1, type=float, help='learning rate decay rate')
@@ -155,7 +156,7 @@ if __name__ == '__main__':
     parser.add_argument('--resume_opt', default='', help='resume optimizer from checkpoint')
 
     # model parameters
-    parser.add_argument('--model', '-m', default='vgg9')
+    parser.add_argument('--model', '-m', default='resnet18')
     parser.add_argument('--loss_name', '-l', default='crossentropy', help='loss functions: crossentropy | mse')
 
     # data parameters
@@ -192,16 +193,16 @@ if __name__ == '__main__':
         os.mkdir(args.save)
 
     save_folder = name_save_folder(args)
-    if not os.path.exists('trained_nets/' + save_folder):
-        os.makedirs('trained_nets/' + save_folder)
+    if not os.path.exists('FashionMNIST/trained_nets/' + save_folder):
+        os.makedirs('FashionMNIST/trained_nets/' + save_folder)
 
-    f = open('trained_nets/' + save_folder + '/log.out', 'a', 1)
+    f = open('FashionMNIST/trained_nets/' + save_folder + '/log.out', 'a', 1)
 
     trainloader, testloader = dataloader.get_data_loaders(args)
 
     if args.label_corrupt_prob and not args.resume_model:
-        torch.save(trainloader, 'trained_nets/' + save_folder + '/trainloader.dat')
-        torch.save(testloader, 'trained_nets/' + save_folder + '/testloader.dat')
+        torch.save(trainloader, 'FashionMNIST/trained_nets/' + save_folder + '/trainloader.dat')
+        torch.save(testloader, 'FashionMNIST/trained_nets/' + save_folder + '/testloader.dat')
 
     # Model
     if args.resume_model:
@@ -237,13 +238,30 @@ if __name__ == '__main__':
         checkpoint_opt = torch.load(args.resume_opt)
         optimizer.load_state_dict(checkpoint_opt['optimizer'])
 
+    print("----------------------------------------------------------")
+    print("START: TRAINING")
+    print("----------------------------------------------------------")
+
     # record the performance of initial model
     if not args.resume_model:
+
+        start = time.perf_counter()
         train_loss, train_err = test(trainloader, net, criterion, use_cuda)
         test_loss, test_err = test(testloader, net, criterion, use_cuda)
-        status = 'e: %d loss: %.5f train_err: %.3f test_top1: %.3f test_loss %.5f \n' % (0, train_loss, train_err, test_err, test_loss)
-        print(status)
+        end = time.perf_counter()
+
+        duration = end - start
+
+        status = 'e: %d train_loss: %.5f train_err: %.3f test_top1: %.3f test_loss %.5f \n' % (0, train_loss, train_err, test_err, test_loss)
         f.write(status)
+
+        print(f"Epoch: {0}")
+        print(f"Elapsed time: {duration} seconds")
+        print(f"Training error: {train_err}")
+        print(f"Test     error: {test_err}")
+        print(f"Training loss : {train_loss}")
+        print(f"Test     loss : {test_loss}")
+        print("---------------------------------------------------------")
 
         state = {
             'acc': 100 - test_err,
@@ -253,17 +271,28 @@ if __name__ == '__main__':
         opt_state = {
             'optimizer': optimizer.state_dict()
         }
-        torch.save(state, 'trained_nets/' + save_folder + '/model_0.t7')
-        torch.save(opt_state, 'trained_nets/' + save_folder + '/opt_state_0.t7')
+        torch.save(state, 'FashionMNIST/trained_nets/' + save_folder + '/model_0.t7')
+        torch.save(opt_state, 'FashionMNIST/trained_nets/' + save_folder + '/opt_state_0.t7')
 
     for epoch in range(start_epoch, args.epochs + 1):
-        loss, train_err = train(trainloader, net, criterion, optimizer, use_cuda)
-        test_loss, test_err = test(testloader, net, criterion, use_cuda)
 
-        status = 'e: %d loss: %.5f train_err: %.3f test_top1: %.3f test_loss %.5f \n' % (epoch, loss, train_err, test_err, test_loss)
-        print(status)
+        start = time.perf_counter()
+        train_loss, train_err = train(trainloader, net, criterion, optimizer, use_cuda)
+        test_loss, test_err = test(testloader, net, criterion, use_cuda)
+        end = time.perf_counter()
+
+        duration = end - start
+
+        status = 'e: %d train_loss: %.5f train_err: %.3f test_top1: %.3f test_loss %.5f \n' % (epoch, train_loss, train_err, test_err, test_loss)
         f.write(status)
 
+        print(f"Epoch: {epoch}")
+        print(f"Elapsed time: {duration} seconds")
+        print(f"Training error: {train_err}")
+        print(f"Test     error: {test_err}")
+        print(f"Training loss : {train_loss}")
+        print(f"Test     loss : {test_loss}")
+        print("---------------------------------------------------------")
         # Save checkpoint.
         acc = 100 - test_err
         if epoch == 1 or epoch % args.save_epoch == 0 or epoch == 150:
@@ -275,8 +304,8 @@ if __name__ == '__main__':
             opt_state = {
                 'optimizer': optimizer.state_dict()
             }
-            torch.save(state, 'trained_nets/' + save_folder + '/model_' + str(epoch) + '.t7')
-            torch.save(opt_state, 'trained_nets/' + save_folder + '/opt_state_' + str(epoch) + '.t7')
+            torch.save(state, 'FashionMNIST/trained_nets/' + save_folder + '/model_' + str(epoch) + '.t7')
+            torch.save(opt_state, 'FashionMNIST/trained_nets/' + save_folder + '/opt_state_' + str(epoch) + '.t7')
 
         if int(epoch) == 150 or int(epoch) == 225 or int(epoch) == 275:
             lr *= args.lr_decay

@@ -63,4 +63,7 @@ if __name__ == '__main__':
     #--------------------------------------------------------------------------
     proj_file = project_trajectory(dir_file, w, s, args.dataset, args.model,
                                 model_files, args.dir_type, 'cos')
+
+    print(f"Location of projection file {proj_file}")
+
     plot_2D.plot_trajectory(proj_file, dir_file)

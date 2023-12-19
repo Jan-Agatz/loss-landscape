@@ -77,6 +77,66 @@ def load_dataset(dataset='cifar10', datapath='cifar10/data', batch_size=128, \
                                                download=False, transform=transform)
         test_loader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
                                                   shuffle=False, num_workers=threads)
+    elif dataset == "MNIST":
+        if raw_data:
+            transform_train = transforms.Compose([
+                transforms.ToTensor(),
+            ])
+        else:
+            transform_train = transforms.Compose([
+                transforms.Resize(size=(32, 32)),
+                transforms.Grayscale(num_output_channels=3),
+                transforms.ToTensor()  # ,
+                    # normalize,
+                ])
+
+        transform_test = transforms.Compose([
+            transforms.Resize(size=(32, 32)),
+            transforms.Grayscale(num_output_channels=3),
+            transforms.ToTensor()
+            # normalize,
+        ])
+
+        kwargs = {'num_workers': 2, 'pin_memory': True}
+        trainset = torchvision.datasets.MNIST(root='./data', train=True, download=True,
+                                              transform=transform_train)
+        testset = torchvision.datasets.MNIST(root='./data', train=False, download=True,
+                                             transform=transform_test)
+
+        train_loader = torch.utils.data.DataLoader(trainset, batch_size=batch_size,
+                                                  shuffle=True, **kwargs)
+        test_loader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
+                                                 shuffle=False, **kwargs)
+    elif dataset == "FashionMNIST":
+        if raw_data:
+            transform_train = transforms.Compose([
+                transforms.ToTensor(),
+            ])
+        else:
+            transform_train = transforms.Compose([
+                transforms.Resize(size=(32, 32)),
+                transforms.Grayscale(num_output_channels=3),
+                transforms.ToTensor()  # ,
+                # normalize,
+            ])
+
+        transform_test = transforms.Compose([
+            transforms.Resize(size=(32, 32)),
+            transforms.Grayscale(num_output_channels=3),
+            transforms.ToTensor()
+            # normalize,
+        ])
+
+        kwargs = {'num_workers': 2, 'pin_memory': True}
+        trainset = torchvision.datasets.FashionMNIST(root='./data', train=True, download=True,
+                                                     transform=transform_train)
+        testset = torchvision.datasets.FashionMNIST(root='./data', train=False, download=True,
+                                                    transform=transform_test)
+
+        train_loader = torch.utils.data.DataLoader(trainset, batch_size=batch_size,
+                                                  shuffle=True, **kwargs)
+        test_loader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
+                                                 shuffle=False, **kwargs)
 
     return train_loader, test_loader
 
@@ -86,7 +146,7 @@ def load_dataset(dataset='cifar10', datapath='cifar10/data', batch_size=128, \
 ###############################################################
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
+    parser = argparse.ArgumentParser(description='PyTorch Training')
     parser.add_argument('--mpi', '-m', action='store_true', help='use mpi')
     parser.add_argument('--cuda', '-c', action='store_true', help='use cuda')
     parser.add_argument('--threads', default=2, type=int, help='number of threads')

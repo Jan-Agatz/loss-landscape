@@ -9,11 +9,18 @@ import h5py
 import argparse
 import numpy as np
 from os.path import exists
+from datetime import datetime
 import seaborn as sns
 
 
-def plot_2d_contour(surf_file, surf_name='train_loss', vmin=0.1, vmax=10, vlevel=0.5, show=False):
+def plot_2d_contour(surf_file, surf_name='train_loss', vmin=0.1, vmax=10, vlevel=0.5, show=False,
+                      timestamp=True, fileformat="png"):
     """Plot 2D contour map and 3D surface."""
+
+    if timestamp:
+        current_timpestamp = datetime.strftime(datetime.now(), "%Y%m%d_%H%M%S")
+    else:
+        current_timpestamp = ""
 
     f = h5py.File(surf_file, 'r')
     x = np.array(f['xcoordinates'][:])
@@ -45,14 +52,23 @@ def plot_2d_contour(surf_file, surf_name='train_loss', vmin=0.1, vmax=10, vlevel
     fig = plt.figure()
     CS = plt.contour(X, Y, Z, cmap='summer', levels=np.arange(vmin, vmax, vlevel))
     plt.clabel(CS, inline=1, fontsize=8)
-    fig.savefig(surf_file + '_' + surf_name + '_2dcontour' + '.pdf', dpi=300,
-                bbox_inches='tight', format='pdf')
+
+    image_file_name = surf_file + '_' + surf_name + '_2dcontour' + "_" + current_timpestamp + "_JHA." + fileformat
+
+    fig.savefig(image_file_name,
+                dpi=300, bbox_inches='tight', format=fileformat)
+
+    print(f"Saved to file {image_file_name}")
 
     fig = plt.figure()
-    print(surf_file + '_' + surf_name + '_2dcontourf' + '.pdf')
     CS = plt.contourf(X, Y, Z, cmap='summer', levels=np.arange(vmin, vmax, vlevel))
-    fig.savefig(surf_file + '_' + surf_name + '_2dcontourf' + '.pdf', dpi=300,
-                bbox_inches='tight', format='pdf')
+
+    image_file_name = surf_file + '_' + surf_name + '_2dcontourf' + "_" + current_timpestamp + "_JHA." + fileformat
+
+    fig.savefig(image_file_name,
+                dpi=300, bbox_inches='tight', format=fileformat)
+
+    print(f"Saved to file {image_file_name}")
 
     # --------------------------------------------------------------------
     # Plot 2D heatmaps
@@ -61,9 +77,13 @@ def plot_2d_contour(surf_file, surf_name='train_loss', vmin=0.1, vmax=10, vlevel
     sns_plot = sns.heatmap(Z, cmap='viridis', cbar=True, vmin=vmin, vmax=vmax,
                            xticklabels=False, yticklabels=False)
     sns_plot.invert_yaxis()
-    sns_plot.get_figure().savefig(surf_file + '_' + surf_name + '_2dheat.pdf',
-                                  dpi=300, bbox_inches='tight', format='pdf')
 
+    image_file_name = surf_file + '_' + surf_name + '_2dheat' + "_" + current_timpestamp + "_JHA." + fileformat
+    sns_plot.get_figure().savefig(image_file_name,
+                dpi=300, bbox_inches='tight', format=fileformat)
+
+
+    print(f"Saved to file {image_file_name}")
     # --------------------------------------------------------------------
     # Plot 3D surface
     # --------------------------------------------------------------------
@@ -71,17 +91,28 @@ def plot_2d_contour(surf_file, surf_name='train_loss', vmin=0.1, vmax=10, vlevel
     ax = Axes3D(fig)
     surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm, linewidth=0, antialiased=False)
     fig.colorbar(surf, shrink=0.5, aspect=5)
-    fig.savefig(surf_file + '_' + surf_name + '_3dsurface.pdf', dpi=300,
-                bbox_inches='tight', format='pdf')
+
+    image_file_name = surf_file + '_' + surf_name + '_3dsurface' + "_" + current_timpestamp + "_JHA." + fileformat
+    fig.savefig(image_file_name,
+                dpi=300, bbox_inches='tight', format=fileformat)
+    print(f"Saved to file {image_file_name}")
 
     f.close()
-    if show: plt.show()
+
+    if show:
+        plt.show()
 
 
-def plot_trajectory(proj_file, dir_file, show=False):
+def plot_trajectory(proj_file, dir_file, show=False, timestamp=True, fileformat="png"):
     """ Plot optimization trajectory on the plane spanned by given directions."""
 
     assert exists(proj_file), 'Projection file does not exist.'
+
+    if timestamp:
+        current_timpestamp = datetime.strftime(datetime.now(), "%Y%m%d_%H%M%S")
+    else:
+        current_timpestamp = ""
+
     f = h5py.File(proj_file, 'r')
     fig = plt.figure()
     plt.plot(f['proj_xcoord'], f['proj_ycoord'], marker='.')
@@ -98,15 +129,27 @@ def plot_trajectory(proj_file, dir_file, show=False):
             plt.ylabel('2nd PC: %.2f %%' % (ratio_y*100), fontsize='xx-large')
         f2.close()
 
-    fig.savefig(proj_file + '.pdf', dpi=300, bbox_inches='tight', format='pdf')
-    if show: plt.show()
+    image_file_name = proj_file + "_" + current_timpestamp + "_JHA." + fileformat,
+
+    fig.savefig(image_file_name,
+                dpi=300, bbox_inches='tight', format=fileformat)
+
+    print(f"Saved to file {image_file_name}")
+
+    if show:
+        plt.show()
 
 
 def plot_contour_trajectory(surf_file, dir_file, proj_file, surf_name='loss_vals',
-                            vmin=0.1, vmax=10, vlevel=0.5, show=False):
+                            vmin=0.1, vmax=10, vlevel=0.5, show=False, timestamp=True, fileformat="png"):
     """2D contour + trajectory"""
 
     assert exists(surf_file) and exists(proj_file) and exists(dir_file)
+
+    if timestamp:
+        current_timpestamp = datetime.strftime(datetime.now(), "%Y%m%d_%H%M%S")
+    else:
+        current_timpestamp = ""
 
     # plot contours
     f = h5py.File(surf_file,'r')
@@ -137,20 +180,35 @@ def plot_contour_trajectory(surf_file, dir_file, proj_file, surf_name='loss_vals
     df.close()
     plt.clabel(CS1, inline=1, fontsize=6)
     plt.clabel(CS2, inline=1, fontsize=6)
-    fig.savefig(proj_file + '_' + surf_name + '_2dcontour_proj.pdf', dpi=300,
-                bbox_inches='tight', format='pdf')
+
+    image_file_name = proj_file + '_' + surf_name + '_2dcontour_proj' + "_" + current_timpestamp + "_JHA." + fileformat
+
+    fig.savefig(image_file_name,
+                dpi=300, bbox_inches='tight', format=fileformat)
+
+    print(f"Saved to file {image_file_name}")
+
     pf.close()
-    if show: plt.show()
+
+    if show:
+        plt.show()
 
 
-def plot_2d_eig_ratio(surf_file, val_1='min_eig', val_2='max_eig', show=False):
+def plot_2d_eig_ratio(surf_file, val_1='min_eig', val_2='max_eig', show=False,
+                      timestamp=True, fileformat="png"):
     """ Plot the heatmap of eigenvalue ratios, i.e., |min_eig/max_eig| of hessian """
 
     print('------------------------------------------------------------------')
     print('plot_2d_eig_ratio')
     print('------------------------------------------------------------------')
     print("loading surface file: " + surf_file)
-    f = h5py.File(surf_file,'r')
+    f = h5py.File(surf_file, 'r')
+
+    if timestamp:
+        current_timpestamp = datetime.strftime(datetime.now(), "%Y%m%d_%H%M%S")
+    else:
+        current_timpestamp = ""
+
     x = np.array(f['xcoordinates'][:])
     y = np.array(f['ycoordinates'][:])
     X, Y = np.meshgrid(x, y)
@@ -166,8 +224,13 @@ def plot_2d_eig_ratio(surf_file, val_1='min_eig', val_2='max_eig', show=False):
     sns_plot = sns.heatmap(abs_ratio, cmap='viridis', vmin=0, vmax=.5, cbar=True,
                            xticklabels=False, yticklabels=False)
     sns_plot.invert_yaxis()
-    sns_plot.get_figure().savefig(surf_file + '_' + val_1 + '_' + val_2 + '_abs_ratio_heat_sns.pdf',
-                                  dpi=300, bbox_inches='tight', format='pdf')
+
+    image_file_name = surf_file + '_' + val_1 + '_' + val_2 + '_abs_ratio_heat_sns' + "_" + current_timpestamp + "_JHA." + fileformat
+
+    sns_plot.get_figure().savefig(image_file_name,
+                dpi=300, bbox_inches='tight', format=fileformat)
+
+    print(f"Saved to file {image_file_name}")
 
     # Plot 2D heatmaps with color bar using seaborn
     ratio = np.divide(Z1, Z2)
@@ -175,10 +238,18 @@ def plot_2d_eig_ratio(surf_file, val_1='min_eig', val_2='max_eig', show=False):
     fig = plt.figure()
     sns_plot = sns.heatmap(ratio, cmap='viridis', cbar=True, xticklabels=False, yticklabels=False)
     sns_plot.invert_yaxis()
-    sns_plot.get_figure().savefig(surf_file + '_' + val_1 + '_' + val_2 + '_ratio_heat_sns.pdf',
-                                  dpi=300, bbox_inches='tight', format='pdf')
+
+    image_file_name = surf_file + '_' + val_1 + '_' + val_2 + '_ratio_heat_sns' + "_" + current_timpestamp + "_JHA." + fileformat
+
+    sns_plot.get_figure().savefig(image_file_name,
+                dpi=300, bbox_inches='tight', format=fileformat)
+
+    print(f"Saved to file {image_file_name}")
+
     f.close()
-    if show: plt.show()
+
+    if show:
+        plt.show()
 
 
 
@@ -193,13 +264,15 @@ if __name__ == '__main__':
     parser.add_argument('--vlevel', default=0.5, type=float, help='plot contours every vlevel')
     parser.add_argument('--zlim', default=10, type=float, help='Maximum loss value to show')
     parser.add_argument('--show', action='store_true', default=False, help='show plots')
+    parser.add_argument('--timestamp', action="store-true", default=False, help='include timestamps in file names')
+    parser.add_argument('--fileformat', default="png", help='file format the saved plots are encoded with')
 
     args = parser.parse_args()
 
     if exists(args.surf_file) and exists(args.proj_file) and exists(args.dir_file):
         plot_contour_trajectory(args.surf_file, args.dir_file, args.proj_file,
-                                args.surf_name, args.vmin, args.vmax, args.vlevel, args.show)
+                                args.surf_name, args.vmin, args.vmax, args.vlevel, args.show, args.timestamp, args.fileformat)
     elif exists(args.proj_file) and exists(args.dir_file):
-        plot_trajectory(args.proj_file, args.dir_file, args.show)
+        plot_trajectory(args.proj_file, args.dir_file, args.show, args.timestamp, args.fileformat)
     elif exists(args.surf_file):
-        plot_2d_contour(args.surf_file, args.surf_name, args.vmin, args.vmax, args.vlevel, args.show)
+        plot_2d_contour(args.surf_file, args.surf_name, args.vmin, args.vmax, args.vlevel, args.show, args.timestamp, args.fileformat)
