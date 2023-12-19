@@ -1,5 +1,5 @@
 # Prelude
-Due to our computer architecture & infrastructure we opted to work on the `no_mpi`-branch of the repository. All the explanations pretain to that branch. 
+Due to our computer architecture & infrastructure we opted to work on the `no_mpi`-branch of the repository. All the explanations pertain to that branch. 
 
 This repository is meant to be a starting point for those trying to recreate or understand the results, plots and calculations found in the presentation by the [hackers](https://colinraffel.com/blog/role-playing-seminar.html) in the [MML seminar](https://scoop.iwr.uni-heidelberg.de/teaching/2023ws/seminar-mathematical-machine-learning/) on December 19th 2023.
 
