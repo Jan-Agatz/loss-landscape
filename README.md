@@ -5,7 +5,7 @@ This repository is meant to be a starting point for those trying to recreate or 
 
 Some values have to user specified. Thes are marked by comments of the form "**# USER-INPUT**".
 
-Since the code provided by the authors did not work "out of the box" for us, we wanted to provide an environment which should take more than a few minutes to setup.
+Since the code provided by the authors did not work "out of the box" for us, we wanted to provide an environment which should not take more than a few minutes to setup.
 
 If you want to run this on Google Colab:
 * Open the file `MML - Paper 04 - Implementations.ipynb`.
