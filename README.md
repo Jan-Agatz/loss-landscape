@@ -2,7 +2,7 @@
 
 This repository containts the Python code necessary to recreate the results found in the presentation by the [hackers](https://colinraffel.com/blog/role-playing-seminar.html) in the [MML seminar](https://scoop.iwr.uni-heidelberg.de/teaching/2023ws/seminar-mathematical-machine-learning/) on December 19th 2023.
 
-Some values have to user specified. Thes are marked by comments of the form "**# USER-INPUT**".
+Some values have to be user specified. Thes are marked by comments of the form "**# USER-INPUT**".
 
 # Visualizing the Loss Landscape of Neural Nets
 
